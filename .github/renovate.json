@@ -1,6 +1,6 @@
 {
   "dependencyDashboard": false,
-  "assignees": ["Antiz96"],
+  "assignees": ["fakerhog15"],
   "git-submodules": { "enabled": true },
   "lockFileMaintenance": { "enabled": true },
   "commitMessagePrefix": "chore(deps): ",

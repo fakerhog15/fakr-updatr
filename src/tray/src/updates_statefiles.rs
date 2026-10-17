@@ -15,8 +15,8 @@ pub struct UpdatesStateFiles {
 
 pub fn get_updates_statefiles() -> anyhow::Result<UpdatesStateFiles> {
     let paths = [
-        env::var_os("XDG_STATE_HOME").map(|path| PathBuf::from(path).join("arch-update")),
-        env::var_os("HOME").map(|path| PathBuf::from(path).join(".local/state/arch-update")),
+        env::var_os("XDG_STATE_HOME").map(|path| PathBuf::from(path).join("fakr-updatr")),
+        env::var_os("HOME").map(|path| PathBuf::from(path).join(".local/state/fakr-updatr")),
     ];
 
     paths

@@ -1,4 +1,4 @@
-//! Find the desktop file needed to run Arch-Update from the terminal
+//! Find the desktop file needed to run Fakr-Updatr from the terminal
 
 use anyhow::Context;
 use std::env;
@@ -8,19 +8,19 @@ use std::path::PathBuf;
 pub fn get_desktop_file() -> anyhow::Result<PathBuf> {
     let paths = [
         env::var_os("XDG_DATA_HOME")
-            .map(|path| PathBuf::from(path).join("applications/arch-update.desktop")),
+            .map(|path| PathBuf::from(path).join("applications/fakr-updatr.desktop")),
         env::var_os("HOME")
-            .map(|path| PathBuf::from(path).join(".local/share/applications/arch-update.desktop")),
+            .map(|path| PathBuf::from(path).join(".local/share/applications/fakr-updatr.desktop")),
         // Purposely only searching the first XDG_DATA_DIRS entry for simplification
         // This can be updated if this ever becomes an issue
         env::var_os("XDG_DATA_DIRS").map(|path| {
             PathBuf::from(path.to_string_lossy().split(':').next().unwrap_or(""))
-                .join("applications/arch-update.desktop")
+                .join("applications/fakr-updatr.desktop")
         }),
         Some(PathBuf::from(
-            "/usr/local/share/applications/arch-update.desktop",
+            "/usr/local/share/applications/fakr-updatr.desktop",
         )),
-        Some(PathBuf::from("/usr/share/applications/arch-update.desktop")),
+        Some(PathBuf::from("/usr/share/applications/fakr-updatr.desktop")),
     ];
 
     paths

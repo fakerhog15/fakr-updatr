@@ -3,11 +3,11 @@ name: Feature Request
 about: Suggest an idea or a new feature
 title: ''
 labels: 'feature request'
-assignees: Antiz96
+assignees: fakerhog15
 
 ---
 
-<!-- Please, read the contributing guidelines before opening an issue: https://github.com/Antiz96/arch-update/blob/main/CONTRIBUTING.md -->
+<!-- Please, read the contributing guidelines before opening an issue: https://github.com/fakerhog15/fakr-updatr/blob/main/CONTRIBUTING.md -->
 
 ### Description
 

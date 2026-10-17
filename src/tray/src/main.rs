@@ -1,5 +1,5 @@
-//! arch-update-tray - A systray applet for Arch-Update
-//! https://github.com/Antiz96/arch-update
+//! fakr-updatr-tray - A systray applet for Fakr-Updatr
+//! https://github.com/fakerhog15/fakr-updatr
 //! SPDX-License-Identifier: GPL-3.0-or-later
 
 use log::error;

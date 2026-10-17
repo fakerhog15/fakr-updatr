@@ -1,0 +1,7 @@
+[Unit]
+Description=Run fakr-updatr auto check
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=fakr-updatr --check

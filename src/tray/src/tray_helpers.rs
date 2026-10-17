@@ -20,17 +20,17 @@ use tokio::sync::mpsc;
 
 use crate::tray;
 
-// Helper to run Arch-Update from the desktop file (via `gio`)
-pub fn launch_arch_update(desktop_file: &Path) {
+// Helper to run Fakr-Updatr from the desktop file (via `gio`)
+pub fn launch_fakr_updatr(desktop_file: &Path) {
     let Some(app) = DesktopAppInfo::from_filename(desktop_file) else {
-        error!("Failed to load Arch-Update desktop file");
+        error!("Failed to load Fakr-Updatr desktop file");
         return;
     };
 
     if let Err(error) = app.launch(&[], None::<&gio::AppLaunchContext>) {
-        error!("Failed to launch Arch-Update: {error}");
+        error!("Failed to launch Fakr-Updatr: {error}");
     } else {
-        info!("Arch-Update launched");
+        info!("Fakr-Updatr launched");
     }
 }
 
@@ -43,7 +43,7 @@ pub fn get_updates_count(updates_statefile: &Path) -> usize {
         .count()
 }
 
-// Helper to get the number of types (packages, aur, flatpak) having available updates
+// Helper to get the number of types (packages, flatpak) having available updates
 pub fn count_update_types(updates_statefile: &Path) -> bool {
     get_updates_count(updates_statefile) > 0
 }
@@ -52,7 +52,7 @@ pub fn count_update_types(updates_statefile: &Path) -> bool {
 // updates per pages for pagination
 pub fn build_updates_submenu(
     updates_statefile: &Path,
-) -> Vec<ksni::MenuItem<tray::ArchUpdateTray>> {
+) -> Vec<ksni::MenuItem<tray::FakrUpdatrTray>> {
     match fs::read_to_string(updates_statefile) {
         Ok(updates) => {
             let updates: Vec<_> = updates
@@ -60,7 +60,7 @@ pub fn build_updates_submenu(
                 .filter(|line| !line.trim().is_empty())
                 .collect();
 
-            let updates_per_page = env::var("ARCH_UPDATE_TRAY_UPDATES_PER_PAGE")
+            let updates_per_page = env::var("FAKR_UPDATR_TRAY_UPDATES_PER_PAGE")
                 .ok()
                 .and_then(|value| value.parse::<usize>().ok())
                 .unwrap_or(0);
@@ -81,7 +81,7 @@ fn build_updates_submenu_pagination(
     updates: &[&str],
     page: usize,
     updates_per_page: usize,
-) -> Vec<ksni::MenuItem<tray::ArchUpdateTray>> {
+) -> Vec<ksni::MenuItem<tray::FakrUpdatrTray>> {
     let (start, end) = if updates_per_page == 0 {
         (0, updates.len())
     } else {
@@ -126,34 +126,30 @@ fn build_updates_submenu_pagination(
 
 // Helper to open package url when clicking on the package update entry
 fn open_package_url(package: &str) {
-    let pacman_output = match Command::new("pacman").arg("-Qi").arg(package).output() {
-        Ok(pacman_output) => pacman_output,
+    let rpm_output = match Command::new("rpm")
+        .args(["-q", "--qf", "%{URL}", package])
+        .output()
+    {
+        Ok(rpm_output) => rpm_output,
         Err(error) => {
             warn!("Failed to query the {package} package information: {error}");
             return;
         }
     };
 
-    if !pacman_output.status.success() {
+    if !rpm_output.status.success() {
         warn!("Failed to get the {package} package information");
         return;
     }
 
-    let pacman_stdout = String::from_utf8_lossy(&pacman_output.stdout);
+    let url = String::from_utf8_lossy(&rpm_output.stdout);
+    let url = url.trim();
 
-    for line in pacman_stdout.lines() {
-        if let Some(url) = line.strip_prefix("URL") {
-            let url = url.trim_matches(|column| column == ':' || column == ' ');
-
-            // Make sure to only send URLs to xdg-open
-            if url.starts_with("http://") || url.starts_with("https://") {
-                match Command::new("xdg-open").arg(url).spawn() {
-                    Ok(_) => info!("Opened the {package} package URL: {url}"),
-                    Err(error) => warn!("Failed to open the {package} package URL {url}: {error}"),
-                }
-            }
-
-            break;
+    // Make sure to only send URLs to xdg-open
+    if url.starts_with("http://") || url.starts_with("https://") {
+        match Command::new("xdg-open").arg(url).spawn() {
+            Ok(_) => info!("Opened the {package} package URL: {url}"),
+            Err(error) => warn!("Failed to open the {package} package URL {url}: {error}"),
         }
     }
 }
@@ -162,7 +158,7 @@ fn open_package_url(package: &str) {
 // icon change
 pub async fn icon_watcher(
     icon_statefile: PathBuf,
-    handle: Handle<crate::tray::ArchUpdateTray>,
+    handle: Handle<crate::tray::FakrUpdatrTray>,
 ) -> anyhow::Result<()> {
     let (tx, mut rx) = mpsc::unbounded_channel();
 
@@ -202,7 +198,7 @@ struct SystemdTimer {
 
 pub fn get_next_check() -> Option<String> {
     let systemctl_output = Command::new("systemctl")
-        .args(["--user", "list-timers", "arch-update.timer", "-o", "json"])
+        .args(["--user", "list-timers", "fakr-updatr.timer", "-o", "json"])
         .output()
         .ok()?;
 

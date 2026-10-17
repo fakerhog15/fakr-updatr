@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# gen.config.sh: Generate a default "arch-update.conf" configuration file (if it doesn't exists yet)
-# https://github.com/Antiz96/arch-update
+# gen.config.sh: Generate a default "fakr-updatr.conf" configuration file (if it doesn't exists yet)
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # shellcheck disable=SC2154

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # check.sh: Check for available updates
-# https://github.com/Antiz96/arch-update
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # shellcheck disable=SC2154
@@ -14,26 +14,11 @@ fi
 # shellcheck disable=SC2154
 touch "${statedir}"/last_updates_check_{packages,aur,flatpak}
 
-# shellcheck disable=SC2154
-checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX")
-
-# shellcheck disable=SC2154
+# List pending system package updates (dnf5 / dnf / rpm-ostree)
 if [ -z "${no_version}" ]; then
-	# shellcheck disable=SC2154
-	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates > "${statedir}/last_updates_check_packages"
+	list_package_updates > "${statedir}/last_updates_check_packages"
 else
-	# shellcheck disable=SC2154
-	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates | awk '{print $1}' > "${statedir}/last_updates_check_packages"
-fi
-
-if [ -n "${aur_helper}" ]; then
-	if [ -z "${no_version}" ]; then
-		# shellcheck disable=SC2154
-		LC_ALL=C "${aur_helper}" -Qua 2> /dev/null | sed 's/^ *//' | sed 's/ \+/ /g' | grep -vw "\[ignored\]$" > "${statedir}/last_updates_check_aur"
-	else
-		# shellcheck disable=SC2154
-		LC_ALL=C "${aur_helper}" -Qua 2> /dev/null | sed 's/^ *//' | sed 's/ \+/ /g' | grep -vw "\[ignored\]$" | awk '{print $1}' > "${statedir}/last_updates_check_aur"
-	fi
+	list_package_updates | awk '{print $1}' > "${statedir}/last_updates_check_packages"
 fi
 
 if [ -n "${flatpak_support}" ]; then

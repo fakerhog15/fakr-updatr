@@ -3,30 +3,30 @@ name: Bug Report
 about: Report a bug
 title: ''
 labels: bug
-assignees: Antiz96
+assignees: fakerhog15
 
 ---
 
-<!-- Please, read the contributing guidelines before opening an issue: https://github.com/Antiz96/arch-update/blob/main/CONTRIBUTING.md -->
+<!-- Please, read the contributing guidelines before opening an issue: https://github.com/fakerhog15/fakr-updatr/blob/main/CONTRIBUTING.md -->
 
 ### Environment
 
 <!-- Please, provide the following information
-Distribution examples are Arch Linux, EndeavourOS, CachyOS, Garuda...
+Distribution examples are Nobara Linux, Fedora, Bazzite, CachyOS...
 Graphical environment examples are KDE, GNOME, XFCE, Sway, Niri...
-The Arch-Update version can be retrieved by running `arch-update --version` -->
+The Fakr-Updatr version can be retrieved by running `fakr-updatr --version` -->
 
 - Distribution:
 - Graphical environment:
-- Arch-Update version:
+- Fakr-Updatr version:
 
-### Arch-Update configuration
+### Fakr-Updatr configuration
 
-<!-- If you're using an arch-update.conf configuration file, paste it below
-It can be retrieved by running `arch-update --show-config` -->
+<!-- If you're using an fakr-updatr.conf configuration file, paste it below
+It can be retrieved by running `fakr-updatr --show-config` -->
 
 ```text
-Paste your arch-update.conf configuration file here (if you use one)
+Paste your fakr-updatr.conf configuration file here (if you use one)
 ```
 
 ### Description of the bug
@@ -36,8 +36,8 @@ Paste your arch-update.conf configuration file here (if you use one)
 ### Screenshots / Logs
 
 <!-- If you have any screenshots to illustrate the issue or any relevant logs, paste them below
-For instance, it could be useful to provide debug traces by running `arch-update --debug` (or `arch-update [OPTION] --debug` if the issue you're facing is about a specific option)
-If you're facing an issue with the systray applet, debug traces can be gathered by running `RUST_LOG=DEBUG arch-update --tray` -->
+For instance, it could be useful to provide debug traces by running `fakr-updatr --debug` (or `fakr-updatr [OPTION] --debug` if the issue you're facing is about a specific option)
+If you're facing an issue with the systray applet, debug traces can be gathered by running `RUST_LOG=DEBUG fakr-updatr --tray` -->
 
 ```text
 Paste any relevant logs here (if you have some)

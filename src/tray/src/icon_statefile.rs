@@ -7,9 +7,9 @@ use std::path::PathBuf;
 
 pub fn get_icon_statefile() -> anyhow::Result<PathBuf> {
     let paths = [
-        env::var_os("XDG_STATE_HOME").map(|path| PathBuf::from(path).join("arch-update/tray_icon")),
+        env::var_os("XDG_STATE_HOME").map(|path| PathBuf::from(path).join("fakr-updatr/tray_icon")),
         env::var_os("HOME")
-            .map(|path| PathBuf::from(path).join(".local/state/arch-update/tray_icon")),
+            .map(|path| PathBuf::from(path).join(".local/state/fakr-updatr/tray_icon")),
     ];
 
     paths

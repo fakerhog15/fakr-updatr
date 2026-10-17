@@ -1,9 +1,9 @@
 [package]
-name = "arch-update-tray"
-version = "4.4.3"
+name = "fakr-updatr-tray"
+version = "1.0.0"
 authors = ["Robin Candau <robincandau@mailbox.org>"]
 edition = "2024"
-description = "A systray applet for Arch-Update"
+description = "A systray applet for Fakr-Updatr"
 license = "GPL-3.0-or-later"
 
 [dependencies]

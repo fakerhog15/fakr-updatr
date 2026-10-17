@@ -1,13 +1,13 @@
-# Arch-Update translation template
+# Fakr-Updatr translation template
 # Copyright (C) 2024 Robin Candau <robincandau@mailbox.org>
-# This file is distributed under the same license as the Arch-Update package.
+# This file is distributed under the same license as the Fakr-Updatr package.
 #
 # Translators:
 # AUTHOR <EMAIL@ADDRESS>, YEAR
 msgid ""
 msgstr ""
-"Project-Id-Version: Arch-Update 4.4.3\n"
-"Report-Msgid-Bugs-To: https://github.com/Antiz96/arch-update/issues\n"
+"Project-Id-Version: Fakr-Updatr 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/fakerhog15/fakr-updatr/issues\n"
 "POT-Creation-Date: 2024-03-17 16:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
@@ -494,7 +494,7 @@ msgstr ""
 #: src/lib/notification.sh:23 src/lib/notification.sh:25
 #: src/tray/src/tray.rs:250
 #, sh-format
-msgid "Run Cachy-Update"
+msgid "Run Fakr-Updatr"
 msgstr ""
 
 #: src/lib/notification.sh:16 src/lib/notification.sh:19

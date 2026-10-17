@@ -42,7 +42,7 @@ esac
 
 # Bump version where necessary
 sed_pattern="${latest_tag//./\\.}" # escape dots
-sed -i "s/${sed_pattern#v}/${release_tag}/g" doc/man/arch-update.* po/* src/arch-update.sh
+sed -i "s/${sed_pattern#v}/${release_tag}/g" doc/man/fakr-updatr.* po/* src/fakr-updatr.sh
 sed -i "s/version = \"${sed_pattern#v}\"/version = \"${release_tag}\"/g" src/tray/Cargo.toml
 
 # Build tray binary
@@ -52,7 +52,7 @@ repro-env build -- cargo build --release --manifest-path src/tray/Cargo.toml
 
 # Update changelog
 git-cliff -up CHANGELOG.md
-sed -i "s|\[unreleased\]|\[v${release_tag}\](https://github.com/Antiz96/arch-update/releases/tag/v${release_tag})\ -\ $(date '+%Y-%m-%d')|g" CHANGELOG.md
+sed -i "s|\[unreleased\]|\[v${release_tag}\](https://github.com/fakerhog15/fakr-updatr/releases/tag/v${release_tag})\ -\ $(date '+%Y-%m-%d')|g" CHANGELOG.md
 
 # Review changes
 git diff
@@ -85,26 +85,26 @@ gh release create "v${release_tag}" --title "v${release_tag}" --verify-tag -F -
 
 # Download and sign auto-generated source tarball and checksum
 gh release download "v${release_tag}" --archive tar.gz --clobber
-gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "arch-update-${release_tag}.tar.gz"
-sha256sum "arch-update-${release_tag}.tar.gz" > "arch-update-${release_tag}.tar.gz.sha256"
-gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "arch-update-${release_tag}.tar.gz.sha256"
+gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "fakr-updatr-${release_tag}.tar.gz"
+sha256sum "fakr-updatr-${release_tag}.tar.gz" > "fakr-updatr-${release_tag}.tar.gz.sha256"
+gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "fakr-updatr-${release_tag}.tar.gz.sha256"
 
 # Sign binary and checksum
-mv src/tray/target/release/arch-update-tray "src/tray/target/release/arch-update-tray-${release_tag}-x86_64"
-gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "src/tray/target/release/arch-update-tray-${release_tag}-x86_64"
-sha256sum "src/tray/target/release/arch-update-tray-${release_tag}-x86_64" > "src/tray/target/release/arch-update-tray-${release_tag}-x86_64.sha256"
-gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "src/tray/target/release/arch-update-tray-${release_tag}-x86_64.sha256"
+mv src/tray/target/release/fakr-updatr-tray "src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64"
+gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64"
+sha256sum "src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64" > "src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64.sha256"
+gpg --local-user D33FAA16B937F3B2 --armor --detach-sign "src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64.sha256"
 
 # Upload assets
 gh release upload "v${release_tag}" \
-	"arch-update-${release_tag}.tar.gz.asc" \
-	"arch-update-${release_tag}.tar.gz.sha256" \
-	"arch-update-${release_tag}.tar.gz.sha256.asc" \
-	"src/tray/target/release/arch-update-tray-${release_tag}-x86_64" \
-	"src/tray/target/release/arch-update-tray-${release_tag}-x86_64.asc" \
-	"src/tray/target/release/arch-update-tray-${release_tag}-x86_64.sha256" \
-	"src/tray/target/release/arch-update-tray-${release_tag}-x86_64.sha256.asc"
+	"fakr-updatr-${release_tag}.tar.gz.asc" \
+	"fakr-updatr-${release_tag}.tar.gz.sha256" \
+	"fakr-updatr-${release_tag}.tar.gz.sha256.asc" \
+	"src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64" \
+	"src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64.asc" \
+	"src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64.sha256" \
+	"src/tray/target/release/fakr-updatr-tray-${release_tag}-x86_64.sha256.asc"
 
 # Cleanup
-rm -rf "arch-update-${release_tag}.tar.gz"* src/tray/target/
+rm -rf "fakr-updatr-${release_tag}.tar.gz"* src/tray/target/
 podman image prune -af

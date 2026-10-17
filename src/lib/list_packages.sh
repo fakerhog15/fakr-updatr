@@ -1,39 +1,16 @@
 #!/bin/bash
 
 # list_packages.sh: Display the list of packages available for updates
-# https://github.com/Antiz96/arch-update
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 info_msg "$(eval_gettext "Looking for updates...\n")"
 
 # shellcheck disable=SC2154
-checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX")
-# shellcheck disable=SC2154
-packages=$(CHECKUPDATES_DB="${checkupdates_db_tmpdir}" timeout "${update_check_timeout}" checkupdates --nocolor)
-packages_exit_code=$?
+packages=$(list_package_updates)
 
-if [ "${packages_exit_code}" -eq 124 ]; then
-	warning_msg "$(eval_gettext "Unable to retrieve Packages updates (request timeout)\n")"
-	unset packages
-elif [ -n "${no_version}" ]; then
+if [ -n "${no_version}" ] && [ -n "${packages}" ]; then
 	packages=$(echo "${packages}" | awk '{print $1}')
-fi
-
-if [ -n "${aur_helper}" ]; then
-	# "< /dev/null" and "2 > /dev/null" needed for pikaur (which is not completely script friendly)
-	# The former because it assumes an interactive TTY environment (causing `timeout` to behave unexpectedly) 
-	# The latter because it outputs some descriptive string in stderr when looking for updates with -Qua
-	# shellcheck disable=SC2154
-	unformatted_aur_packages=$(LC_ALL=C timeout "${update_check_timeout}" "${aur_helper}" --color never "${devel_flag[@]}" -Qua < /dev/null 2> /dev/null)
-	unformatted_aur_packages_exit_code=$?
-	aur_packages=$(echo "${unformatted_aur_packages}" | sed 's/^ *//' | sed 's/ \+/ /g' | grep -vw "\[ignored\]$")
-
-	if [ "${unformatted_aur_packages_exit_code}" -eq 124 ]; then
-		warning_msg "$(eval_gettext "Unable to retrieve AUR Packages updates (request timeout)\n")"
-		unset aur_packages
-	elif [ -n "${no_version}" ]; then
-		aur_packages=$(echo "${aur_packages}" | awk '{print $1}')
-	fi
 fi
 
 if [ -n "${flatpak_support}" ]; then
@@ -96,6 +73,7 @@ color_update_list() {
 	while IFS= read -r line; do
 		[ -z "${line}" ] && continue
 		read -r pkgname oldver _ newver <<< "${line}"
+		[ -z "${newver}" ] && { echo "${line}"; continue; }
 		IFS='-' read -r old_vers_upstream _old_vers_release <<< "${oldver}"
 		IFS='-' read -r new_vers_upstream _new_vers_release <<< "${newver}"
 		IFS=':.' read -ra old_vers <<< "${old_vers_upstream}"
@@ -123,18 +101,6 @@ if [ -n "${packages}" ]; then
 	echo "${packages}" > "${statedir}/last_updates_check_packages"
 fi
 
-if [ -n "${aur_packages}" ]; then
-	main_msg "$(eval_gettext "AUR Packages:")"
-	if [ -n "${no_color}" ] || [ -n "${no_version}" ]; then
-		echo "${aur_packages}" | column -t
-	else
-		echo "${aur_packages}" | color_update_list | column -t
-	fi
-	echo
-	echo "${aur_packages}" >> "${statedir}/last_updates_check"
-	echo "${aur_packages}" > "${statedir}/last_updates_check_aur"
-fi
-
 if [ "${#flatpak_packages[@]}" -gt 0 ]; then
 	main_msg "$(eval_gettext "Flatpak Packages:")"
 	printf "%s\n" "${flatpak_packages[@]}" | column -t
@@ -145,7 +111,7 @@ fi
 
 date "+%s%n%F %T" > "${statedir}/last_updates_check_time"
 
-if [ -z "${packages}" ] && [ -z "${aur_packages}" ] && [ "${#flatpak_packages[@]}" -eq 0 ]; then
+if [ -z "${packages}" ] && [ "${#flatpak_packages[@]}" -eq 0 ]; then
 	icon_up-to-date
 	info_msg "$(eval_gettext "No update available\n")"
 
@@ -155,10 +121,6 @@ if [ -z "${packages}" ] && [ -z "${aur_packages}" ] && [ "${#flatpak_packages[@]
 else
 	icon_updates-available
 	if [ -z "${list_option}" ]; then
-		if [ -n "${alhp_support}" ]; then
-			# shellcheck source=src/lib/alhp_check.sh disable=SC2154
-			source "${libdir}/alhp_check.sh"
-		fi
 		ask_msg "$(eval_gettext "Proceed with update? [Y/n]")"
 
 		# shellcheck disable=SC2154

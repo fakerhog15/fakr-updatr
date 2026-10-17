@@ -1,0 +1,21 @@
+[Desktop Entry]
+Name=Fakr-Updatr Systray Applet
+Comment=Systray applet for Fakr-Updatr
+Comment[be]=Аплет сістэмнага трэя для Fakr-Updatr
+Comment[bg]=Аплет в системния трей за Fakr-Updatr
+Comment[de]=Fakr-Updatr-Minianwendung für den Benachrichtigungsbereich
+Comment[es]=Applet de bandeja del sistema para Fakr-Updatr
+Comment[eu]=Fakr-Updatrrako systray applet-a
+Comment[fr]=Applet systray pour Fakr-Updatr
+Comment[it]=Applet del vassoio di sistema per Fakr-Updatr
+Comment[ja]=Fakr-Updatr 用のシステムトレイアプレット
+Comment[ka]=Fakr-Updatr-ის აპლეტი სისტემურ საათთან
+Comment[nb]=Miniprogam for å legge Fakr-Updatr i systemkurven
+Comment[ru]=Апплет Fakr-Updatr в системном трее
+Comment[tr]=Fakr-Updatr sistem tepsisi uygulaması
+Comment[zh_CN]=Fakr-Updatr 的系统托盘小程序
+Icon=fakr-updatr_updates-available-blue
+Type=Application
+Exec=/bin/sh -c "sleep 3 && fakr-updatr --tray"
+Categories=Utility
+NoDisplay=true

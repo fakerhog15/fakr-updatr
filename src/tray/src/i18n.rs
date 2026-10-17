@@ -24,7 +24,7 @@ pub fn get_i18n_dir() -> String {
         .into_iter()
         .flatten()
         .find_map(|path| {
-            let translation_file = path.join("fr/LC_MESSAGES/Arch-Update.mo");
+            let translation_file = path.join("fr/LC_MESSAGES/Fakr-Updatr.mo");
 
             File::open(&translation_file)
                 .ok()
@@ -44,15 +44,15 @@ pub fn init_i18n(i18n_dir: &str) {
         }
     }
 
-    if textdomain("Arch-Update").is_err() {
+    if textdomain("Fakr-Updatr").is_err() {
         warn!("Failed to set gettext domain");
     }
 
-    if bindtextdomain("Arch-Update", i18n_dir).is_err() {
+    if bindtextdomain("Fakr-Updatr", i18n_dir).is_err() {
         warn!("Failed to bind gettext domain path");
     }
 
-    if bind_textdomain_codeset("Arch-Update", "UTF-8").is_err() {
+    if bind_textdomain_codeset("Fakr-Updatr", "UTF-8").is_err() {
         warn!("Failed to set gettext domain codeset");
     }
 }

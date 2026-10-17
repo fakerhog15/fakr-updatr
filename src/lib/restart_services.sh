@@ -1,12 +1,15 @@
 #!/bin/bash
 
 # restart_services.sh: Display services requiring a post update restart and offer to restart them
-# https://github.com/Antiz96/arch-update
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# shellcheck disable=SC2154
-services=$("${su_cmd}" checkservices -F -P -R -i gdm.service -i plasmalogin.service -i sddm.service -i lightdm.service -i lxdm.service -i slim.service -i xdm.service -i greetd.service -i nodm.service -i ly.service -i lemurs.service 2> /dev/null | grep ".service" | cut -f2 -d "'")
-services_num=$(echo "${services}" | wc -l)
+# On Fedora/Nobara, `needs-restarting` (from dnf-plugins-core) lists services that need a restart after an upgrade.
+services=""
+if command -v needs-restarting > /dev/null 2>&1; then
+	services=$(needs-restarting --services 2> /dev/null | sort -u)
+fi
+services_num=$(printf "%s\n" "${services}" | sed '/^[[:space:]]*$/d' | wc -l)
 
 if [ -n "${services}" ]; then
 	if [ "${services_num}" -eq 1 ]; then

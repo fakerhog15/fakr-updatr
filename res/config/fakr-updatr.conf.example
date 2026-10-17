@@ -1,0 +1,14 @@
+# Fakr-Updatr example configuration file (available at <https://github.com/fakerhog15/fakr-updatr/blob/main/res/config/fakr-updatr.conf.example>).
+# Documentation for this configuration file is available in the fakr-updatr.conf(5) man page (see <https://github.com/fakerhog15/fakr-updatr/blob/main/doc/man/fakr-updatr.conf.5.scd>).
+# List of available options (with their default value) below, un-comment one to enable it.
+
+#NoColor
+#NoVersion
+#NoFlatpak
+#NoNotification
+#UpdateCheckTimeout=30
+#PrivilegeElevationCommand=sudo
+#ShowTrayWhenRelevant
+#TrayUpdatesPerPage=0
+#TrayIconStyle=blue
+#ColorblindMode

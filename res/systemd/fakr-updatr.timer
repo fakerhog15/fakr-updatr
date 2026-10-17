@@ -1,5 +1,5 @@
 [Unit]
-Description=Run arch-update auto check at boot and then once a day
+Description=Run fakr-updatr auto check at boot and then once a day
 
 [Timer]
 OnStartupSec=2min

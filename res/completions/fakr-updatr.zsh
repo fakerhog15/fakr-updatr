@@ -1,17 +1,15 @@
-#compdef arch-update
+#compdef fakr-updatr
 
 local -a opts
 opts=(
     {-c,--check}'[Check for available updates]'
     {-l,--list}'[Display the list of pending updates]'
-    {-d,--devel}'[Include AUR development packages updates]'
-    {-n,--news}'[Display latest Arch news]'
     {-s,--services}'[Check for services requiring a post upgrade restart]'
     {-D,--debug}'[Display debug traces]'
     --gen-config'[Generate a default / example configuration file]'
     --show-config'[Display the current configuration file]'
     --edit-config'[Edit the current configuration file]'
-    --tray'[Launch the Arch-Update systray applet]'
+    --tray'[Launch the Fakr-Updatr systray applet]'
     {-h,--help}'[Display the help message]'
     {-V,--version}'[Display version information]'
 )

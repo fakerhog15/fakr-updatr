@@ -17,17 +17,17 @@ use std::process::{self, Command};
 use crate::tray_helpers;
 use crate::updates_statefiles;
 
-pub struct ArchUpdateTray {
+pub struct FakrUpdatrTray {
     icon_statefile: PathBuf,
     updates_statefile_type: updates_statefiles::UpdatesStateFiles,
     desktop_file: PathBuf,
 }
 
 // Systray Applet implementation
-impl ksni::Tray for ArchUpdateTray {
+impl ksni::Tray for FakrUpdatrTray {
     // Set id
     fn id(&self) -> String {
-        "Cachy-Update".into()
+        "Fakr-Updatr".into()
     }
 
     // Set category
@@ -37,7 +37,7 @@ impl ksni::Tray for ArchUpdateTray {
 
     // Set status
     fn status(&self) -> ksni::Status {
-        if env::var("ARCH_UPDATE_SHOW_TRAY_WHEN_RELEVANT").is_ok_and(|value| value == "true") {
+        if env::var("FAKR_UPDATR_SHOW_TRAY_WHEN_RELEVANT").is_ok_and(|value| value == "true") {
             match tray_helpers::get_updates_count(&self.updates_statefile_type.all) {
                 0 => ksni::Status::Passive,
                 _ => ksni::Status::Active,
@@ -82,9 +82,9 @@ impl ksni::Tray for ArchUpdateTray {
         }
     }
 
-    // Run Arch-Update via the desktop file when activated (left click)
+    // Run Fakr-Updatr via the desktop file when activated (left click)
     fn activate(&mut self, _x: i32, _y: i32) {
-        tray_helpers::launch_arch_update(&self.desktop_file);
+        tray_helpers::launch_fakr_updatr(&self.desktop_file);
     }
 
     // Dynamically rebuild menu when opened (AboutToShow protocol)
@@ -131,7 +131,7 @@ impl ksni::Tray for ArchUpdateTray {
                     StandardItem {
                         label,
                         activate: Box::new(move |_| {
-                            tray_helpers::launch_arch_update(&desktop_file);
+                            tray_helpers::launch_fakr_updatr(&desktop_file);
                         }),
                         ..Default::default()
                     }
@@ -165,20 +165,6 @@ impl ksni::Tray for ArchUpdateTray {
                     submenu: tray_helpers::build_updates_submenu(
                         &self.updates_statefile_type.packages,
                     ),
-                    ..Default::default()
-                }
-                .into(),
-            );
-        }
-
-        // Add the "AUR" entry, if there are AUR updates available
-        let count = tray_helpers::get_updates_count(&self.updates_statefile_type.aur);
-
-        if count > 0 {
-            menu.push(
-                SubMenu {
-                    label: gettext("AUR ({count})").replace("{count}", &count.to_string()),
-                    submenu: tray_helpers::build_updates_submenu(&self.updates_statefile_type.aur),
                     ..Default::default()
                 }
                 .into(),
@@ -221,7 +207,7 @@ impl ksni::Tray for ArchUpdateTray {
                 .into(),
             );
         } else {
-            warn!("Failed to determine the last Arch-Update check time");
+            warn!("Failed to determine the last Fakr-Updatr check time");
         }
 
         // Add the "Next Check" menu entry (if the systemd timer is started / enabled)
@@ -238,18 +224,18 @@ impl ksni::Tray for ArchUpdateTray {
                 .into(),
             );
         } else {
-            warn!("Failed to determine next Arch-Update check time");
+            warn!("Failed to determine next Fakr-Updatr check time");
         }
 
-        // Add a menu group containing a separator and the "Run Arch-Update", "Check for updates" & "Exit" buttons
+        // Add a menu group containing a separator and the "Run Fakr-Updatr", "Check for updates" & "Exit" buttons
         let desktop_file = self.desktop_file.clone();
 
         menu.extend([
             MenuItem::Separator,
             StandardItem {
-                label: gettext("Run Cachy-Update"),
+                label: gettext("Run Fakr-Updatr"),
                 activate: Box::new(move |_| {
-                    tray_helpers::launch_arch_update(&desktop_file);
+                    tray_helpers::launch_fakr_updatr(&desktop_file);
                 }),
                 ..Default::default()
             }
@@ -257,9 +243,9 @@ impl ksni::Tray for ArchUpdateTray {
             StandardItem {
                 label: gettext("Check for updates"),
                 activate: Box::new(
-                    |_| match Command::new("arch-update").arg("--check").spawn() {
-                        Ok(_) => info!("Arch-Update check executed"),
-                        Err(error) => error!("Failed to execute Arch-Update check: {error}"),
+                    |_| match Command::new("fakr-updatr").arg("--check").spawn() {
+                        Ok(_) => info!("Fakr-Updatr check executed"),
+                        Err(error) => error!("Failed to execute Fakr-Updatr check: {error}"),
                     },
                 ),
                 ..Default::default()
@@ -288,7 +274,7 @@ pub async fn run(
     // Clone icon statefile path variable (used by the watcher)
     let watcher_icon_statefile = icon_statefile.clone();
 
-    let tray = ArchUpdateTray {
+    let tray = FakrUpdatrTray {
         icon_statefile,
         updates_statefile_type,
         desktop_file,

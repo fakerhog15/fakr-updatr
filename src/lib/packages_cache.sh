@@ -1,72 +1,43 @@
 #!/bin/bash
 
-# packages_cache.sh: Search for old packages archives in the pacman cache and offer to remove them
-# https://github.com/Antiz96/arch-update
+# packages_cache.sh: Search for cached package archives and offer to remove them
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# shellcheck disable=SC2154
-pacman_cache_old=$(paccache -dk"${old_packages_num}" | sed -n 's/.*: \([0-9]*\) candidate.*/\1/p')
-# shellcheck disable=SC2154
-pacman_cache_uninstalled=$(paccache -duk"${uninstalled_packages_num}" | sed -n 's/.*: \([0-9]*\) candidate.*/\1/p')
+cached_packages_num=0
 
-# shellcheck disable=SC2154
-[ -z "${pacman_cache_old}" ] && pacman_cache_old="0"
-# shellcheck disable=SC2154
-[ -z "${pacman_cache_uninstalled}" ] && pacman_cache_uninstalled="0"
-pacman_cache_total=$(("${pacman_cache_old}+${pacman_cache_uninstalled}"))
+if command -v dnf5 > /dev/null 2>&1 || command -v dnf > /dev/null 2>&1; then
+	# dnf5 stores its cache in /var/cache/libdnf5, dnf(4) in /var/cache/dnf (when "keepcache=1")
+	for cache_dir in /var/cache/libdnf5 /var/cache/dnf; do
+		if [ -d "${cache_dir}" ]; then
+			cached_packages_num=$(( cached_packages_num + $(find "${cache_dir}" -type f -name "*.rpm" 2> /dev/null | wc -l) ))
+		fi
+	done
+fi
 
-if [ "${pacman_cache_total}" -gt 0 ]; then
-
-	if [ "${pacman_cache_total}" -eq 1 ]; then
-		main_msg "$(eval_gettext "Cached Packages:\nThere's an old or uninstalled cached package\n")"
+if [ "${cached_packages_num}" -gt 0 ]; then
+	if [ "${cached_packages_num}" -eq 1 ]; then
+		main_msg "$(eval_gettext "Cached Packages:\nThere's a cached package available for removal\n")"
 		ask_msg "$(eval_gettext "Would you like to remove it from the cache now? [Y/n]")"
 	else
-		main_msg "$(eval_gettext "Cached Packages:\nThere are old and / or uninstalled cached packages\n")"
+		main_msg "$(eval_gettext "Cached Packages:\nThere are \${cached_packages_num} cached packages available for removal\n")"
 		ask_msg "$(eval_gettext "Would you like to remove them from the cache now? [Y/n]")"
 	fi
 
 	# shellcheck disable=SC2154
 	case "${answer}" in
 		"$(eval_gettext "Y")"|"$(eval_gettext "y")"|"")
-			if [ "${pacman_cache_old}" -gt 0 ] && [ "${pacman_cache_uninstalled}" -eq 0 ]; then
-				echo
-				main_msg "$(eval_gettext "Removing old cached packages...")"
-
-				# shellcheck disable=SC2154
-				if ! "${su_cmd}" paccache "${contrib_color_opt[@]}" -rk"${old_packages_num}"; then
+			echo
+			main_msg "$(eval_gettext "Cleaning package cache...")"
+			if command -v dnf5 > /dev/null 2>&1; then
+				if ! "${su_cmd}" dnf5 clean all; then
 					echo
-					error_msg "$(eval_gettext "An error has occurred during the removal process\nThe removal has been aborted\n")"
-				else
-					echo
+					error_msg "$(eval_gettext "An error has occurred during the cleanup process\n")"
 				fi
-			elif [ "${pacman_cache_old}" -eq 0 ] && [ "${pacman_cache_uninstalled}" -gt 0 ]; then
-				echo
-				main_msg "$(eval_gettext "Removing uninstalled cached packages...")"
-
-				if ! "${su_cmd}" paccache "${contrib_color_opt[@]}" -ruk"${uninstalled_packages_num}"; then
+			elif command -v dnf > /dev/null 2>&1; then
+				if ! "${su_cmd}" dnf clean all; then
 					echo
-					error_msg "$(eval_gettext "An error has occurred during the removal process\nThe removal has been aborted\n")"
-				else
-					echo
-				fi
-			elif [ "${pacman_cache_old}" -gt 0 ] && [ "${pacman_cache_uninstalled}" -gt 0 ]; then
-				echo
-				main_msg "$(eval_gettext "Removing old cached packages...")"
-
-				if ! "${su_cmd}" paccache "${contrib_color_opt[@]}" -rk"${old_packages_num}"; then
-					echo
-					error_msg "$(eval_gettext "An error has occurred during the removal process\nThe removal has been aborted\n")"
-				else
-					echo
-				fi
-
-				main_msg "$(eval_gettext "Removing uninstalled cached packages...")"
-
-				if ! "${su_cmd}" paccache "${contrib_color_opt[@]}" -ruk"${uninstalled_packages_num}"; then
-					echo
-					error_msg "$(eval_gettext "An error has occurred during the removal process\nThe removal has been aborted\n")"
-				else
-					echo
+					error_msg "$(eval_gettext "An error has occurred during the cleanup process\n")"
 				fi
 			fi
 		;;
@@ -76,5 +47,5 @@ if [ "${pacman_cache_total}" -gt 0 ]; then
 		;;
 	esac
 else
-	info_msg "$(eval_gettext "No old or uninstalled cached package found\n")"
+	info_msg "$(eval_gettext "No cached package found\n")"
 fi

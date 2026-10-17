@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # update.sh: Update packages and state files
-# https://github.com/Antiz96/arch-update
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 if [ -n "${packages}" ]; then
@@ -9,35 +9,39 @@ if [ -n "${packages}" ]; then
 	main_msg "$(eval_gettext "Updating Packages...\n")"
 
 	# shellcheck disable=SC2154
-	if ! "${su_cmd}" pacman --color "${pacman_color_opt}" -Syu; then
-		echo
-		error_msg "$(eval_gettext "An error has occurred during the update process\nThe update has been aborted\n")" && quit_msg
+	if command -v rpm-ostree > /dev/null 2>&1 && [ -f /run/ostree-booted ]; then
+		if ! "${su_cmd}" rpm-ostree upgrade; then
+			echo
+			error_msg "$(eval_gettext "An error has occurred during the update process\nThe update has been aborted\n")" && quit_msg
+			exit 5
+		else
+			true > "${statedir}/last_updates_check_packages"
+			cat "${statedir}"/last_updates_check_{packages,aur,flatpak} > "${statedir}/last_updates_check"
+			packages_updated="true"
+		fi
+	elif command -v dnf5 > /dev/null 2>&1; then
+		if ! "${su_cmd}" dnf5 upgrade -y; then
+			echo
+			error_msg "$(eval_gettext "An error has occurred during the update process\nThe update has been aborted\n")" && quit_msg
+			exit 5
+		else
+			true > "${statedir}/last_updates_check_packages"
+			cat "${statedir}"/last_updates_check_{packages,aur,flatpak} > "${statedir}/last_updates_check"
+			packages_updated="true"
+		fi
+	elif command -v dnf > /dev/null 2>&1; then
+		if ! "${su_cmd}" dnf upgrade -y; then
+			echo
+			error_msg "$(eval_gettext "An error has occurred during the update process\nThe update has been aborted\n")" && quit_msg
+			exit 5
+		else
+			true > "${statedir}/last_updates_check_packages"
+			cat "${statedir}"/last_updates_check_{packages,aur,flatpak} > "${statedir}/last_updates_check"
+			packages_updated="true"
+		fi
+	else
+		error_msg "$(eval_gettext "No supported package manager found (dnf5, dnf, or rpm-ostree)\n")" && quit_msg
 		exit 5
-	else
-		true > "${statedir}/last_updates_check_packages"
-		cat "${statedir}"/last_updates_check_{packages,aur,flatpak} > "${statedir}/last_updates_check"
-		packages_updated="true"
-	fi
-fi
-
-if [ -n "${aur_packages}" ]; then
-	echo
-	# shellcheck disable=SC2154
-	# shellcheck source=src/lib/orphan_packages.sh
-	source "${libdir}/orphan_packages.sh"
-
-	main_msg "$(eval_gettext "Updating AUR Packages...\n")"
-
-	# shellcheck disable=SC2154
-	if ! "${aur_helper}" --color "${pacman_color_opt}" "${devel_flag[@]}" -Syu; then
-		echo
-		warning_msg "$(eval_gettext "An error has occurred during the update process\nThe update has been aborted\n")"
-		error_during_update="true"
-	else
-		true > "${statedir}/last_updates_check_aur"
-		cat "${statedir}"/last_updates_check_{packages,aur,flatpak} > "${statedir}/last_updates_check"
-		# shellcheck disable=SC2034
-		packages_updated="true"
 	fi
 fi
 

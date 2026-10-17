@@ -1,0 +1,21 @@
+[Desktop Entry]
+Name=Fakr-Updatr
+Comment=An interactive update notifier & applier for Nobara Linux
+Comment[be]=Інтэрактыўны апавяшчальнік і ўсталёўшчык абнаўленняў для Nobara Linux
+Comment[bg]=Интерактивен нотификатор и инструмент за актуализиране за Nobara Linux
+Comment[de]=Ein interaktiver Update-Benachrichtiger und -Anwender für Nobara Linux
+Comment[es]=Notificador y gestor de actualizaciones para Nobara Linux
+Comment[eu]=Nobara Linuxrako eguneraketa-jakinarazle eta aplikatzaile interaktiboa.
+Comment[fr]=Un notificateur & applicateur de mises à jour interactif pour Nobara Linux
+Comment[it]=Un sistema interattivo di notifica & applicazione degli aggiornamenti per Nobara Linux
+Comment[ja]=Nobara Linux 用の対話式アップデート通知 & 適用システム
+Comment[ka]=ინტერაქტიური განახლებების შეტყობინება და გადატარება Nobara Linux-ისთვის
+Comment[nb]=En interaktiv oppdateringsvarsler og -gjennomfører for Nobara Linux
+Comment[ru]=Интерактивный помощник по обновлению Nobara Linux: уведомляет об обновлениях и устанавливает их
+Comment[tr]=Nobara Linux için etkileşimli bir güncelleme bildiricisi ve uygulayıcısı
+Comment[zh_CN]=Nobara Linux 的交互式更新通知 & 应用工具
+Icon=fakr-updatr-blue
+Type=Application
+Terminal=true
+Exec=fakr-updatr
+Categories=Utility

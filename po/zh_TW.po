@@ -1,13 +1,13 @@
-# Arch-Update Chinese (traditional) translation
+# Fakr-Updatr Chinese (traditional) translation
 # Copyright (C) 2024 Robin Candau <robincandau@mailbox.org>
-# This file is distributed under the same license as the Arch-Update package.
+# This file is distributed under the same license as the Fakr-Updatr package.
 #
 # Translators:
 # Capricornus007 <sihaogang@gmail.com>, 2025
 msgid ""
 msgstr ""
-"Project-Id-Version: Arch-Update 4.4.3\n"
-"Report-Msgid-Bugs-To: https://github.com/Antiz96/arch-update/issues\n"
+"Project-Id-Version: Fakr-Updatr 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/Antiz96/fakr-updatr/issues\n"
 "POT-Creation-Date: 2024-03-17 16:22+0100\n"
 "PO-Revision-Date: 2025-11-18 14:50+0800\n"
 "Last-Translator: Capricornus007 <sihaogang@gmail.com>\n"
@@ -520,8 +520,8 @@ msgstr "1 個更新可用"
 #: src/lib/notification.sh:23 src/lib/notification.sh:25
 #: src/tray/src/tray.rs:250
 #, sh-format
-msgid "Run Cachy-Update"
-msgstr "執行 Cachy-Update"
+msgid "Run Fakr-Updatr"
+msgstr "執行 Fakr-Updatr"
 
 #: src/lib/notification.sh:16 src/lib/notification.sh:19
 #: src/lib/notification.sh:23 src/lib/notification.sh:25

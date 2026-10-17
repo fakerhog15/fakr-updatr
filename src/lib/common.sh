@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# common.sh: Set variables, functions and parameters commonly used across the various Arch-Update stages
-# https://github.com/Antiz96/arch-update
+# common.sh: Set variables, functions and parameters commonly used across the various Fakr-Updatr stages
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Display debug traces if the -D / --debug argument is passed
@@ -27,14 +27,10 @@ statedir="${XDG_STATE_HOME:-${HOME}/.local/state}/${name}"
 tmpdir="${XDG_RUNTIME_DIR:-/run/user/$UID}/${name}"
 mkdir -p "${statedir}" "${tmpdir}" || exit 16
 
-# Define checkupdates temporary db dir prefix
-# shellcheck disable=SC2034
-checkupdates_db_tmpdir_prefix="${tmpdir}/checkupdates-"
-
 # Declare necessary parameters for translations
 # shellcheck disable=SC1091
 . gettext.sh
-# Using "Arch-Update" as TEXTDOMAIN to avoid conflicting with the "arch-update" TEXTDOMAIN used by the "Arch Linux Updates Indicator" Gnome extension (https://extensions.gnome.org/extension/1010/archlinux-updates-indicator/)
+# Using "Fakr-Updatr" as TEXTDOMAIN for translations
 # shellcheck disable=SC2154
 export TEXTDOMAIN="${_name}"
 # Check where the translation files are installed (depending on the PREFIX used during the installation) to see if the default TEXTDOMAINDIR path (/usr/share/locale) should be superseded
@@ -56,12 +52,6 @@ if [ -z "${no_color}" ]; then
 	yellow="${bold}\e[33m"
 	red="${bold}\e[31m"
 	color_off="\e[0m"
-	# shellcheck disable=SC2034
-	pacman_color_opt="always"
-else
-	# shellcheck disable=SC2034
-	pacman_color_opt="never"
-	contrib_color_opt+=("--nocolor")
 fi
 
 # Definition of the main_msg function: Display a message as a main message
@@ -114,30 +104,6 @@ quit_msg() {
 	read -n 1 -r -s -p $"$(info_msg "${msg}")" && echo
 }
 
-# Definition of the AUR helper to use (depending on if / which one is installed on the system and if it's not already defined in arch-update.conf) for the optional AUR packages support
-check_aur_helper() {
-	if [ -z "${no_aur}" ]; then
-		# shellcheck disable=SC2034
-		if [ -z "${aur_helper}" ]; then
-			if command -v paru > /dev/null; then
-				# shellcheck disable=SC2034
-				aur_helper="paru"
-			elif command -v yay > /dev/null; then
-				# shellcheck disable=SC2034
-				aur_helper="yay"
-			elif command -v pikaur > /dev/null; then
-				# shellcheck disable=SC2034
-				aur_helper="pikaur"
-			fi
-		else
-			if ! command -v "${aur_helper}" > /dev/null; then
-				warning_msg "$(eval_gettext "The \${aur_helper} AUR helper set for AUR packages support in the \${name}.conf configuration file is not found\n")"
-				unset aur_helper
-			fi
-		fi
-	fi
-}
-
 # Check if flatpak is installed for the optional Flatpak support
 if [ -z "${no_flatpak}" ]; then
 	# shellcheck disable=SC2034
@@ -154,13 +120,7 @@ if [ -z "${no_notification}" ]; then
 	notification_support=$(command -v notify-send)
 fi
 
-# Check if alhp.utils is installed for the optional alhp.utils check support
-if [ -z "${no_alhp_check}" ]; then
-	# shellcheck disable=SC2034
-	alhp_support=$(command -v alhp.utils)
-fi
-
-# Definition of the elevation command to use (depending on which one is installed on the system and if it's not already defined in arch-update.conf)
+# Definition of the elevation command to use (depending on which one is installed on the system and if it's not already defined in fakr-updatr.conf)
 check_su_cmd () {
 	if [ -z "${su_cmd}" ]; then
 		if command -v sudo > /dev/null; then
@@ -183,42 +143,70 @@ check_su_cmd () {
 	fi
 }
 
-# Definition of the diff program to use (if it is set in the arch-update.conf configuration file)
-check_diff_prog () {
-	[ -n "${DIFFPROG}" ] && diff_prog="${DIFFPROG}"
-
-	if [ -n "${diff_prog}" ]; then
-		if ! command -v "${diff_prog%% *}" > /dev/null; then
-			error_msg "$(eval_gettext "The \${diff_prog} editor set for visualizing / editing differences of pacnew files in the \${name}.conf configuration file is not found\n")" && quit_msg
-			exit 15
-		else
-			if [ "${su_cmd}" == "sudo" ] || [ "${su_cmd}" == "sudo-rs" ]; then
-				diff_prog_opt=("DIFFPROG=${diff_prog}")
-			elif [ "${su_cmd}" == "doas" ]; then
-				diff_prog_opt=("env" "DIFFPROG=${diff_prog}")
-			elif [ "${su_cmd}" == "run0" ]; then
-				diff_prog_opt+=("--setenv=DIFFPROG=${diff_prog}")
-			fi
-		fi
-	fi
-}
-
 # Definition of the icon_up-to-date function: Change tray icon to "up to date"
 icon_up-to-date() {
 	# shellcheck disable=SC2154
-	echo "cachy-update-${tray_icon_style}" > "${statedir}/tray_icon"
+	echo "fakr-updatr-${tray_icon_style}" > "${statedir}/tray_icon"
 }
 
 # Definition of the icon_updates-available function: Change tray icon to "updates available"
 icon_updates-available() {
 	# shellcheck disable=SC2154
-	echo "cachy-update_updates-available-${tray_icon_style}${colorblind_mode}" > "${statedir}/tray_icon"
+	echo "fakr-updatr_updates-available-${tray_icon_style}${colorblind_mode}" > "${statedir}/tray_icon"
+}
+
+# Definition of the list_package_updates function: list pending package updates in the
+# "<name> <oldver> -> <newver>" format (mimicking pacman-contrib's checkupdates output, which the rest of the code expects)
+list_package_updates() {
+	local raw name newver oldver
+
+	# rpm-ostree (Fedora Atomic / image-based) systems
+	if command -v rpm-ostree > /dev/null 2>&1 && [ -f /run/ostree-booted ]; then
+		if rpm-ostree status 2> /dev/null | grep -q "^[[:space:]]*State:[[:space:]]*staged"; then
+			echo "system-upgrade staged -> reboot required"
+		fi
+		return 0
+	fi
+
+	# dnf5 / dnf (regular Fedora / Nobara systems)
+	if command -v dnf5 > /dev/null 2>&1; then
+		raw=$(timeout "${update_check_timeout}" dnf5 -q check-update 2> /dev/null)
+	elif command -v dnf > /dev/null 2>&1; then
+		raw=$(timeout "${update_check_timeout}" dnf -q check-update 2> /dev/null)
+	else
+		return 0
+	fi
+
+	# dnf5/dnf "check-update" output format: "<name>.<arch> <evr> <repo>", printed as run as follows:
+	# "<name> <oldver> -> <newver>" for use by Fakr-Updatr's display / tray statefiles.
+	# Blocks whose headers we may encounter are explicitly skipped.
+	printf "%s\n" "${raw}" | while read -r name newver _; do
+		[ -z "${name}" ] && continue
+		[ -z "${newver}" ] && continue
+
+		case "${name}" in
+			Obsoleting | Security | Last | Warning | Updating | Repositories | Error | Failed | Dependencies | Available | Checking | Package) continue ;;
+		esac
+
+		# Strip the architecture suffix (e.g. ".x86_64")
+		case "${name}" in
+			*.x86_64 | *.i686 | *.i586 | *.noarch | *.aarch64 | *.i386 | *.armv7hl | *.ppc64le | *.s390x | *.src) name="${name%.*}" ;;
+		esac
+
+		# Strip the epoch prefix from the available version if present (e.g. "1:1.2.3" -> "1.2.3")
+		case "${newver}" in
+			[0-9]*:*) newver="${newver#*:}" ;;
+		esac
+
+		oldver=$(rpm -q --qf "%{VERSION}-%{RELEASE}" "${name}" 2> /dev/null) || oldver="?"
+
+		printf "%s %s -> %s\n" "${name}" "${oldver}" "${newver}"
+	done
 }
 
 # Definition of commands to always run on exit (e.g. cleanup of files / dirs which have no purpose being kept)
 cleanup() {
 	# shellcheck disable=SC2154
-	[ -d "${checkupdates_db_tmpdir}" ] && rm -rf "${checkupdates_db_tmpdir}"
 	[ -n "${kernel_reboot}" ] && tput cnorm
 }
 

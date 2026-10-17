@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# arch-update: An interactive update notifier & applier for Arch Linux that assists you with important pre / post update tasks
-# https://github.com/Antiz96/arch-update
+# fakr-updatr: An interactive update notifier & applier for Fedora/Nobara that assists you with important pre / post update tasks
+# https://github.com/fakerhog15/fakr-updatr
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # General variables
-name="arch-update"
-_name="Arch-Update"
-version="4.4.3"
+name="fakr-updatr"
+_name="Fakr-Updatr"
+version="1.0.0"
 option="${1}"
 
 # Define the directory containing libraries
-if [ -n "${ARCH_UPDATE_LIBDIR}" ]; then
-	libdir="${ARCH_UPDATE_LIBDIR}"
+if [ -n "${FAKR_UPDATR_LIBDIR}" ]; then
+	libdir="${FAKR_UPDATR_LIBDIR}"
 elif [ -d "${XDG_DATA_HOME}/${name}/lib" ]; then
 	libdir="${XDG_DATA_HOME}/${name}/lib"
 elif [ -d "${HOME}/.local/share/${name}/lib" ]; then
@@ -28,11 +28,11 @@ else
 	exit 14
 fi
 
-# Source the "config" library which checks options set in the arch-update.conf configuration file
+# Source the "config" library which checks options set in the fakr-updatr.conf configuration file
 # shellcheck source=src/lib/config.sh
 source "${libdir}/config.sh"
 
-# Source the "common" library which sets variables, functions and parameters commonly used across the various Arch-Update stages
+# Source the "common" library which sets variables, functions and parameters commonly used across the various Fakr-Updatr stages
 # shellcheck source=src/lib/common.sh
 source "${libdir}/common.sh"
 
@@ -41,38 +41,22 @@ case "${option}" in
 	"")
 		# Check for requirements
 		check_su_cmd
-		check_aur_helper
-		check_diff_prog
 
 		# Source the "full_upgrade" library which executes the series of relevant functions / libraries to perform a complete and proper update of the system
 		# shellcheck source=src/lib/full_upgrade.sh
 		source "${libdir}/full_upgrade.sh"
 	;;
 	-d|--devel)
-		# Set the "--devel" flag for AUR helpers
-		devel_flag+=("--devel")
-
-		# Check for requirements
-		check_su_cmd
-		check_aur_helper
-		check_diff_prog
-
-		# Source the "full_upgrade" library which executes the series of relevant functions / libraries to perform a complete and proper update of the system
-		# shellcheck source=src/lib/full_upgrade.sh
-		source "${libdir}/full_upgrade.sh"
+		# AUR support doesn't exist on Fedora/Nobara: inform and exit
+		error_msg "$(eval_gettext "AUR support is not available on this system\n")" && quit_msg
+		exit 1
 	;;
 	-c|--check)
-		# Check for requirements
-		check_aur_helper
-
 		# Source the "check" library which checks for available updates
 		# shellcheck source=src/lib/check.sh
 		source "${libdir}/check.sh"
 	;;
 	-l|--list)
-		# Check for requirements
-		check_aur_helper
-
 		# Set that the "-l / --list" option is used (required for the "list_packages" library to only print the list of packages available for update without asking for the user confirmation to apply them)
 		list_option="true"
 
@@ -81,18 +65,9 @@ case "${option}" in
 		source "${libdir}/list_packages.sh"
 	;;
 	-n|--news)
-		# Set that news should be shown and that the "-n / --news" option is used (required for the "list_news" library to only print the list of recent Arch news without looking to continue with the update process)
-		show_news="true"
-		news_option="true"
-
-		# Check if the user specified a specific number of news to display
-		if [ "${2}" -gt 0 ] 2> /dev/null; then
-			news_num="${2}"
-		fi
-
-		# Source the "list_news" library which displays the latest Arch news and offers to read them
-		# shellcheck source=src/lib/list_news.sh
-		source "${libdir}/list_news.sh"
+		# News feed is not configured for this distribution yet
+		info_msg "$(eval_gettext "News feature not configured for this distribution")"
+		exit 0
 	;;
 	-s|--services)
 		# Check for requirements
@@ -103,27 +78,27 @@ case "${option}" in
 		source "${libdir}/restart_services.sh"
 	;;
 	--gen-config)
-		# Check if the user specified to overwrite any existing "arch-update.conf" configuration file
+		# Check if the user specified to overwrite any existing "fakr-updatr.conf" configuration file
 		if [ "${2}" == "--force" ]; then
 			overwrite_config_file="true"
 		fi
 
-		# Source the "gen-config" library which generates a default "arch-update.conf" configuration file (if it doesn't exists yet)
+		# Source the "gen-config" library which generates a default "fakr-updatr.conf" configuration file (if it doesn't exists yet)
 		# shellcheck source=src/lib/gen-config.sh
 		source "${libdir}/gen-config.sh"
 	;;
 	--show-config)
-		# Source the "show-config" library which displays the current "arch-update.conf" configuration file
+		# Source the "show-config" library which displays the current "fakr-updatr.conf" configuration file
 		# shellcheck source=src/lib/show-config.sh
 		source "${libdir}/show-config.sh"
 	;;
 	--edit-config)
-		# Source the "edit-config" library which edits the current "arch-update.conf" configuration file
+		# Source the "edit-config" library which edits the current "fakr-updatr.conf" configuration file
 		# shellcheck source=src/lib/edit-config.sh
 		source "${libdir}/edit-config.sh"
 	;;
 	--tray)
-		# Source the "tray" library which starts the Arch-Update systray applet
+		# Source the "tray" library which starts the Fakr-Updatr systray applet
 		# shellcheck source=src/lib/tray.sh
 		source "${libdir}/tray.sh"
 	;;
